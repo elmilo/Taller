@@ -1,0 +1,15 @@
+#include <string.h>
+
+char* foo = "abcdefghijkl";
+if (strchr(foo, 'a') != NULL)
+{
+  // do stuff
+}
+
+
+
+char foo[] = { 'a', 'b', 'c', 'd', 'e' }; // note last element isn't '\0'
+if (memchr(foo, 'a', sizeof(foo))
+{
+  // do stuff
+}

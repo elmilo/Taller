@@ -1,0 +1,11 @@
+Una vez descargado el archivo Cpplint, se puede utilizar el script execute.sh para verificar las normas de todos los archivos de extensión .c,.cpp,.h,.hpp bajo la carpeta actual. Para ejecutar el script, es necesario asegurarse que se cuenta con un interprete bash apropiado. Existen dos formas de hacer esto:
+
+    Utilizar el comando bash e indicarle el archivo de script:
+        > bash execute.sh  o bien:
+        > sh execute.sh
+    Entregar al archivo los permisos de ejecución necesarios y agregar la ruta al comando bash en la cabecera:
+        Controlar que el comando bash se encuentre en /bin/bash y que esta ruta esté indicada en la cabecera de execute.sh:
+        > chmod +x execute.sh
+        ./execute.sh
+
+
