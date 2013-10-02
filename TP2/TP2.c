@@ -269,10 +269,16 @@ char* siguienteLinea(char* entrada, int cantidad){
  * Procedimiento para copiar en otro puntero el contenido
  * apuntado por el primero
  * */
-char *copiarContenido(char *str){
+/*char *copiarContenido(char *str){
     char *dup = malloc((strlen(str) + 1)*sizeof(char));
     dup[(strlen(str))] = '\0';
     return dup ? strcpy(dup, str) : dup;
+}*/
+char *copiarContenido(char *str){
+    char *dup = malloc((strlen(str) + 1)*sizeof(char));
+    strncpy(dup, str, strlen(str));
+    dup = '\0';
+    return dup;
 }
 
 /**
