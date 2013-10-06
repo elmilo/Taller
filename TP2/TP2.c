@@ -25,64 +25,6 @@ typedef struct Coordenadas {
 } Coordenadas;
 
 /**
- * 
- * Procedimiento para recorrer todo el archivo e ir cargando en la matriz.
- * Si se llega a un limite de dimension, se corta, o si se llega a recorrer
- * todo el archivo y quedan dimensiones, se resetea el file pointer
- * */
-int recorrerTextoLlenarMatriz
-    (const char* direccion, char** unaMatriz, int dimX, int dimY){
-    FILE *fp = fopen(direccion, "r");
-    //struct stat infoArchivo;
-
-/*********************************************/
-    /*if (!fp)
-            return 1;
-
-    if (stat(direccion, &infoArchivo))
-            return 1;*/
-    
-/*********************************************/
-    int i,j;
-    i=j=0;
-    char unChar = getc(fp);
-    while (unChar!= EOF){
-        unaMatriz[i][j] = unChar;
-        j++;
-        /*
-         *Caso 1: se llega al final de la fila
-         * y se resetea j
-         * */
-        if (j==dimY-1 && i!=dimX-1) {
-            i++; 
-            j=0;
-        }
-        /*
-        *Caso 2: se completa la matriz 
-        *y no se sigue leyendo
-        * */
-        if ((j==dimY-1) && (i==dimX-1)){
-            fclose(fp);
-            return 0;
-        }
-        
-        unChar = getc(fp);
-        /*
-        *Caso 3: se llega al final del archivo sin 
-        *haber completado la matriz
-        * */
-        /*if (unChar == EOF && (j<dimY-1) && (i<dimX-1)){
-            rewind(fp);
-            unChar = getc(fp);
-        }*/
-    }
-    
-    fclose(fp);
-    return 0;
-}
-
-
-/**
  * Procedimientos de impresión de datos
  * **/
 void imprimirCoord(Coordenadas unaCoord){
@@ -94,9 +36,55 @@ void imprimirMatriz(char** unaMatriz, int dimX, int dimY){
     printf("La matriz es: \n");
     for (int i=0; i<dimX; i++){
         for (int j=0; j<dimY; j++)
-            printf("%c ",unaMatriz[i][j]);
-        printf("\n");
+            printf("%c",unaMatriz[i][j]);
+        printf("|\n");
     }
+}
+
+/**
+ * 
+ * Procedimiento para recorrer todo el archivo e ir cargando en la matriz.
+ * Si se llega a un limite de dimension, se corta, o si se llega a recorrer
+ * todo el archivo y quedan dimensiones, se resetea el file pointer
+ * */
+int recorrerTextoLlenarMatriz
+    (const char* direccion, char** unaMatriz, int dimX, int dimY){
+    FILE *fp = fopen(direccion, "r");
+    int i,j;
+    i=j=0;
+    char unChar = getc(fp);
+    while (unChar!= EOF){
+        unaMatriz[i][j] = unChar;
+        j++;
+        /*
+         *Caso 1: se llega al final de la fila
+         * y se resetea j
+         * */
+        if (j==dimY && i!=dimX-1) {
+            i++; 
+            j=0;
+        }
+        /*
+        *Caso 2: se completa la matriz 
+        *y no se sigue leyendo
+        * */
+        if ((j==dimY) && (i==dimX-1)){
+            fclose(fp);
+            return 0;
+        }
+        
+        unChar = getc(fp);
+        /*
+        *Caso 3: se llega al final del archivo sin 
+        *haber completado la matriz
+        * */
+        if ((unChar == EOF || unChar == '\n') && (j<dimY) && (i<dimX-1)){
+            rewind(fp);
+            unChar = getc(fp);
+        }
+    }
+    fclose(fp);
+    return 0;
 }
 
 /**
@@ -159,7 +147,7 @@ char* leerParamsConsola(int* tamanio){
     
     return (pLectura);
 }
-    
+
 /**
  * * Procedimiento para crear una nueva matriz de tamaño dinámico
  * */
@@ -240,7 +228,6 @@ void proponerMovimiento(char unMovimiento, Coordenadas posicionActual,
     *posicionPosible= posicionActual;
 }
 
-
 /**
  * Este procedimiento va cargando en la cola los movimientos hechos
  * los validos, con el codigo URLD, los invalidos, con el codigo de 
@@ -318,11 +305,6 @@ char* siguienteLinea(char* entrada, int numeroDeLinea){
  * Procedimiento para copiar en otro puntero el contenido
  * apuntado por el primero
  * */
-/*char *copiarContenido(char *str){
-    char *dup = malloc((strlen(str) + 1)*sizeof(char));
-    dup[(strlen(str))] = '\0';
-    return dup ? strcpy(dup, str) : dup;
-}*/
 char* copiarContenido(char *str){
     char *dup = malloc((strlen(str) + 1)*sizeof(char));
     strncpy(dup, str, strlen(str));
@@ -350,7 +332,6 @@ void ciclar(char* lineaParams, int tamanioParams, char* direccionText){
     char* losMovimientos = 0; //movimientos: "ULRLR"...
 
     losMovimientos = parsearParams(lineaParams, tamanioParams, &dimX, &dimY);
-    //Crear la matriz con la dimensiones leídas
     char **laMatriz = crearMatriz(dimX, dimY);
     recorrerTextoLlenarMatriz(direccionText, laMatriz, dimX, dimY);
     
@@ -370,8 +351,8 @@ void ciclar(char* lineaParams, int tamanioParams, char* direccionText){
     mostrarMovimientos(&laCola,tamanioParams*3);
 }
 
-/*
- * Principal
+/**************************************************************
+ * Programa principal
  * **/
 int main(int argc, char **argv){
     int tamanioParams;
@@ -388,7 +369,7 @@ int main(int argc, char **argv){
             char* lineaParams = siguienteLinea(originalParams, iteraciones);
             ciclar(lineaParams, tamanioParams, direccionTexto);
             free(originalParams);//Se desaloca la copia de parametros.
-            }
+        }
         free(losParams); //No se necesita más el archivo de parámetros
     }else if (argc == 2){
         losParams = leerParamsConsola(&tamanioParams);
