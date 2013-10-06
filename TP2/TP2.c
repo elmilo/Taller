@@ -2,12 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "Cola.c"
-
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "Cola.h"
 
 #define MOVIMIENTO_INVALIDO '-'
 
@@ -79,7 +74,7 @@ int recorrerTextoLlenarMatriz
         *haber completado la matriz
         * */
         if ((unChar == EOF || unChar == '\n') && (j<dimY) && (i<dimX-1)){
-            rewind(fp);
+            rewind(fp); //Se resetea el file pointer
             unChar = getc(fp);
         }
     }
@@ -104,7 +99,7 @@ char* leerParamsArchivo(char* direccion, int* tamanio){
         unsigned int i=0;
         //Aceptar hasta el eof
         while ((unChar = getc(fp)) != EOF){
-            pLectura[i++]=(char)unChar;
+            pLectura[i++]=toupper((char)unChar);
             //si se alcanza el tamanio max, se realoca
             if (i == tamanioActual){
                 tamanioActual = i+maximaLong;
@@ -134,7 +129,7 @@ char* leerParamsConsola(int* tamanio){
         unsigned int i=0;
         //Aceptar hasta el enter o eof
         while ((unChar = getchar()) != '\n' && unChar != EOF){
-            pLectura[i++]=(char)unChar;
+            pLectura[i++]=toupper((char)unChar);
             //si se alcanza el tamanio max, se realoca
             if (i == tamanioActual){
                 tamanioActual = i+maximaLong;
@@ -156,9 +151,6 @@ char** crearMatriz(int dimX, int dimY){
     laMatriz = (char**) malloc(dimX*sizeof(char*));  
     for (int i = 0; i < dimX; i++)  
         laMatriz[i] = (char*) malloc(dimY*sizeof(char));  
-    /*for (int i = 0; i < dimX; i++) 
-        for (int j = 0; i < dimY; j++)
-            laMatriz[i][j] = 'i';*/
     return laMatriz;  
 }
 
@@ -200,13 +192,38 @@ int estaEnRango(Coordenadas unaPosicion, int dimX, int dimY){
 }
 
 /**
+ * Analizar si el char corresponde a uno que sirva para moverse
+ * en la matriz (UDRL)
+ * */
+int movimientoValido(char unMovimiento){
+
+    switch (unMovimiento){
+    case ARRIBA:
+        return 1; //true one
+        break;
+    case ABAJO:
+        return 1; //true one
+        break;
+    case IZQUIERDA:
+        return 1; //true one
+        break;
+    case DERECHA:
+        return 1; //true one
+        break;
+    
+    default:
+        return 0; //false cero
+        break;
+    }
+}
+
+/**
  * Recibe la posicion actual de la matriz y una posible
  * el cual se verifica luego si está en rango de dimensiones
  * */
 void proponerMovimiento(char unMovimiento, Coordenadas posicionActual, 
     Coordenadas *posicionPosible){
-    char upper = toupper(unMovimiento);
-    switch (upper){
+    switch (unMovimiento){
     case ARRIBA:
         (posicionActual.x)--;
         break;
@@ -242,6 +259,7 @@ void moverseSobreMatriz
     
     posicionPosible = posicionActual;
     while (*losMovimientos!= '\0'){
+    if (movimientoValido(*losMovimientos)){
         proponerMovimiento(*losMovimientos, posicionActual, &posicionPosible);
         if (estaEnRango(posicionPosible, dimX, dimY)){
     laCola->encolar(laCola, unaMatriz[posicionPosible.x][posicionPosible.y]);
@@ -249,7 +267,7 @@ void moverseSobreMatriz
         }else{
         laCola->encolar(laCola, MOVIMIENTO_INVALIDO);
         }
-    
+    }
     losMovimientos++;
     }
 }
@@ -303,14 +321,21 @@ char* siguienteLinea(char* entrada, int numeroDeLinea){
 
 /**
  * Procedimiento para copiar en otro puntero el contenido
- * apuntado por el primero
+ * apuntado por entrada
  * */
-char* copiarContenido(char *str){
-    char *dup = malloc((strlen(str) + 1)*sizeof(char));
-    strncpy(dup, str, strlen(str));
-    //dup = '\0';
-    dup[(strlen(str) + 1)] = '\0';
-    return dup;
+char *duplicar(char *entrada) {
+    // tamanio de la salida
+    size_t tamanio = strlen(entrada); 
+    // alocar memoria para la salida, incluyendo el NULL en caso que no lo tenga
+    char *buffer = malloc(tamanio+1);
+    if (buffer) {
+        // Si se aloca, copiar el contenido
+        memcpy(buffer, entrada, tamanio);
+        // Agrego barra cero por las dudas
+        buffer[tamanio] = '\0';
+    }
+    // Si copia, retorna el string, en otro caso NULL
+    return buffer;
 }
 
 /**
@@ -334,7 +359,6 @@ void ciclar(char* lineaParams, int tamanioParams, char* direccionText){
     losMovimientos = parsearParams(lineaParams, tamanioParams, &dimX, &dimY);
     char **laMatriz = crearMatriz(dimX, dimY);
     recorrerTextoLlenarMatriz(direccionText, laMatriz, dimX, dimY);
-    
     /**
     * Moverse sobre la matriz con el texto y devolver la cola con los 
     * movimientos. 
@@ -358,14 +382,13 @@ int main(int argc, char **argv){
     int tamanioParams;
     char* losParams  = 0; //Parametros de movimientos
     char* direccionTexto = argv[1];
-
     if (argc == 3){
         int tamanioParams = 0;
         char* direccionParam =argv[2];
         losParams = leerParamsArchivo(direccionParam, &tamanioParams);
         int cantidadLineas = contarLineas(losParams);
         for (int iteraciones=1; iteraciones<cantidadLineas; iteraciones++){
-            char* originalParams = copiarContenido(losParams);
+            char* originalParams = duplicar(losParams);
             char* lineaParams = siguienteLinea(originalParams, iteraciones);
             ciclar(lineaParams, tamanioParams, direccionTexto);
             free(originalParams);//Se desaloca la copia de parametros.
