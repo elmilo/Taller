@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "Cola.h"
+#include "Cola.c"
 
 
 #include <sys/types.h>
@@ -25,33 +25,62 @@ typedef struct Coordenadas {
 } Coordenadas;
 
 /**
- * Procedimiento para abrir un archivo y cargar su contenido en salida,
- * el cual es liberado luego desde el procedimiento que se invocó
+ * 
+ * Procedimiento para recorrer todo el archivo e ir cargando en la matriz.
+ * Si se llega a un limite de dimension, se corta, o si se llega a recorrer
+ * todo el archivo y quedan dimensiones, se resetea el file pointer
  * */
-char* abrirArchivo(char* direccion, int *tamanio){
-    struct stat sb;
-    char *archivoEnMemoria;
+int recorrerTextoLlenarMatriz
+    (const char* direccion, char** unaMatriz, int dimX, int dimY){
     FILE *fp = fopen(direccion, "r");
-    if (!fp)
-        return '\0';
-    if (stat(direccion, &sb))
-        return '\0';
-    //Alocar suficiente espacio para cargar el puntero de devolución
-    archivoEnMemoria = (char *) malloc(sb.st_size);
-    if (!archivoEnMemoria){
-        fclose(fp);
-        return '\0';
-    }
-    //Cargar el tamaño de lo que devuelve
-    *tamanio = (int) sb.st_size;
-    //Cargar el puntero de devolución
-    if (fread(archivoEnMemoria, sizeof(char), sb.st_size, fp) < 1)
-        fprintf(stderr, "\nError in reading or end of file.\n");
-    //Cerrar el archivo
-    fclose(fp);
+    //struct stat infoArchivo;
+
+/*********************************************/
+    /*if (!fp)
+            return 1;
+
+    if (stat(direccion, &infoArchivo))
+            return 1;*/
     
-    return archivoEnMemoria;
+/*********************************************/
+    int i,j;
+    i=j=0;
+    char unChar = getc(fp);
+    while (unChar!= EOF){
+        unaMatriz[i][j] = unChar;
+        j++;
+        /*
+         *Caso 1: se llega al final de la fila
+         * y se resetea j
+         * */
+        if (j==dimY-1 && i!=dimX-1) {
+            i++; 
+            j=0;
+        }
+        /*
+        *Caso 2: se completa la matriz 
+        *y no se sigue leyendo
+        * */
+        if ((j==dimY-1) && (i==dimX-1)){
+            fclose(fp);
+            return 0;
+        }
+        
+        unChar = getc(fp);
+        /*
+        *Caso 3: se llega al final del archivo sin 
+        *haber completado la matriz
+        * */
+        /*if (unChar == EOF && (j<dimY-1) && (i<dimX-1)){
+            rewind(fp);
+            unChar = getc(fp);
+        }*/
+    }
+    
+    fclose(fp);
+    return 0;
 }
+
 
 /**
  * Procedimientos de impresión de datos
@@ -71,9 +100,41 @@ void imprimirMatriz(char** unaMatriz, int dimX, int dimY){
 }
 
 /**
- * Para leer desde la consola
+ * Para leer parámetros desde un archivo
  * **/
-char* lecturaManual(int* tamanio){
+char* leerParamsArchivo(char* direccion, int* tamanio){
+    unsigned int maximaLong = 128;
+    unsigned int tamanioActual = 0;
+    
+    FILE *fp = fopen(direccion, "r");
+    
+    char *pLectura = malloc(maximaLong);
+    tamanioActual = maximaLong;
+ 
+    if (pLectura != NULL){
+        int unChar = EOF;
+        unsigned int i=0;
+        //Aceptar hasta el eof
+        while ((unChar = getc(fp)) != EOF){
+            pLectura[i++]=(char)unChar;
+            //si se alcanza el tamanio max, se realoca
+            if (i == tamanioActual){
+                tamanioActual = i+maximaLong;
+                pLectura = realloc(pLectura, tamanioActual);
+            }
+        }
+        pLectura[i] = '\0';
+        *tamanio=i;
+    }
+    
+    fclose(fp);
+    return (pLectura);
+}
+
+/**
+ * Para leer los parámetros desde la consola
+ * **/
+char* leerParamsConsola(int* tamanio){
     unsigned int maximaLong = 128;
     unsigned int tamanioActual = 0;
  
@@ -81,21 +142,20 @@ char* lecturaManual(int* tamanio){
     tamanioActual = maximaLong;
  
     if (pLectura != NULL){
-    int c = EOF;
-    unsigned int i=0;
-    //Aceptar hasta el enter o eof
-    while ((c = getchar()) != '\n' && c != EOF){
-        pLectura[i++]=(char)c;
-    //si se alcanza el tamanio max, se realoca
-        if (i == tamanioActual){
-            tamanioActual = i+maximaLong;
-            pLectura = realloc(pLectura, tamanioActual);
+        int unChar = EOF;
+        unsigned int i=0;
+        //Aceptar hasta el enter o eof
+        while ((unChar = getchar()) != '\n' && unChar != EOF){
+            pLectura[i++]=(char)unChar;
+            //si se alcanza el tamanio max, se realoca
+            if (i == tamanioActual){
+                tamanioActual = i+maximaLong;
+                pLectura = realloc(pLectura, tamanioActual);
             }
         }
     pLectura[i] = '\0';
     *tamanio=i;
     }
-    
     
     return (pLectura);
 }
@@ -108,22 +168,10 @@ char** crearMatriz(int dimX, int dimY){
     laMatriz = (char**) malloc(dimX*sizeof(char*));  
     for (int i = 0; i < dimX; i++)  
         laMatriz[i] = (char*) malloc(dimY*sizeof(char));  
+    /*for (int i = 0; i < dimX; i++) 
+        for (int j = 0; i < dimY; j++)
+            laMatriz[i][j] = 'i';*/
     return laMatriz;  
-}
-
-/**
- * * Procedimiento para llenar con texto una matriz
- * */
-void llenarMatriz(char* unTexto, int tamanioTexto, char** unaMatriz, 
-    int dimX, int dimY){
-    int k=0;
-    for (int i=0; i<dimX; i++)
-        for (int j=0; j<dimY; j++){
-            unaMatriz[i][j] = unTexto[k];
-            k++;
-            if (k==tamanioTexto-1) //En caso de tener que volver al inicio
-                k=0;
-            }
 }
 
 /**
@@ -136,10 +184,11 @@ void desalocarMatriz(char** unaMatriz, int dimX){
 }
 
 /**
- * Procedimiento para leer los parámetros de movimiento sobre la matriz, 
- * y sus dimensiones
+ * Para leer los parámetros de movimiento sobre la matriz, 
+ * y sus dimensiones.
+ * Se parsea con sscanf y expresiones regulares
  * */
-char* lecturaParams(char* entrada, int unTamanio, int *dimX, int *dimY){
+char* parsearParams(char* entrada, int unTamanio, int *dimX, int *dimY){
     char uno[3];
     char dos[3];
     char* movimientos = (char *) malloc(unTamanio);
@@ -147,7 +196,7 @@ char* lecturaParams(char* entrada, int unTamanio, int *dimX, int *dimY){
     *dimX = atoi(uno);
     *dimY = atoi(dos);
     return movimientos;
-    }
+}
 
 /**
 * Verifica si la próximo movimiento está dentro de los posibles,
@@ -189,8 +238,7 @@ void proponerMovimiento(char unMovimiento, Coordenadas posicionActual,
         break;
     }
     *posicionPosible= posicionActual;
-    }
-
+}
 
 
 /**
@@ -198,8 +246,8 @@ void proponerMovimiento(char unMovimiento, Coordenadas posicionActual,
  * los validos, con el codigo URLD, los invalidos, con el codigo de 
  * movimiento invalido.
  * */
-void recorrerMatriz(char** unaMatriz, int dimX, int dimY, char* losMovimientos, 
-    Cola *laCola){
+void moverseSobreMatriz
+    (char** unaMatriz, int dimX, int dimY, char* losMovimientos, Cola *laCola){
     Coordenadas posicionActual, posicionPosible; 
     //Se inicializan en (0,0)
     posicionActual.x=0;
@@ -220,7 +268,8 @@ void recorrerMatriz(char** unaMatriz, int dimX, int dimY, char* losMovimientos,
 }
 
 /**
- * Se desencola (pop) para mostrar todos los movimientos hechos
+ * Se desencola (pop) hasta que esté vacía la estructura
+ * para mostrar todos los movimientos hechos
  * */
 void mostrarMovimientos(Cola *unaCola, int tamanioEstablecido){
     char * addendum = (char *) malloc(tamanioEstablecido);
@@ -251,16 +300,16 @@ void mostrarMovimientos(Cola *unaCola, int tamanioEstablecido){
         }
     printf("%c", CODIGOCRLF);
     free(addendum);
-    }
+}
 
 /**
  * Para obtener una linea cualquiera de un texto
  * */
-char* siguienteLinea(char* entrada, int cantidad){
+char* siguienteLinea(char* entrada, int numeroDeLinea){
     char * devuelvo;
     const char *delim = "\n";
     devuelvo = strtok(entrada, delim);
-    for (int i=1; i<cantidad; i++)
+    for (int i=1; i<numeroDeLinea; i++)
         devuelvo = strtok(NULL, delim);
     return devuelvo;
 }
@@ -274,17 +323,18 @@ char* siguienteLinea(char* entrada, int cantidad){
     dup[(strlen(str))] = '\0';
     return dup ? strcpy(dup, str) : dup;
 }*/
-char *copiarContenido(char *str){
+char* copiarContenido(char *str){
     char *dup = malloc((strlen(str) + 1)*sizeof(char));
     strncpy(dup, str, strlen(str));
-    dup = '\0';
+    //dup = '\0';
+    dup[(strlen(str) + 1)] = '\0';
     return dup;
 }
 
 /**
  * Se cuentan la cantidad de lineas que tiene el archivo de entrada
  * */
-int obtenerLineas(char* entrada){
+int contarLineas(char* entrada){
     int cantidad = 0;
     while (*entrada!= '\0'){
         if (*entrada ==  '\n')
@@ -294,96 +344,55 @@ int obtenerLineas(char* entrada){
     return cantidad;
 }
 
+void ciclar(char* lineaParams, int tamanioParams, char* direccionText){
+    int dimX, dimY;
+    Cola laCola = crearCola();
+    char* losMovimientos = 0; //movimientos: "ULRLR"...
+
+    losMovimientos = parsearParams(lineaParams, tamanioParams, &dimX, &dimY);
+    //Crear la matriz con la dimensiones leídas
+    char **laMatriz = crearMatriz(dimX, dimY);
+    recorrerTextoLlenarMatriz(direccionText, laMatriz, dimX, dimY);
+    
+    /**
+    * Moverse sobre la matriz con el texto y devolver la cola con los 
+    * movimientos. 
+    */
+    moverseSobreMatriz(laMatriz, dimX, dimY, losMovimientos, &laCola);
+
+    desalocarMatriz(laMatriz, dimX);
+
+    free(losMovimientos); //No se necesitan más los movimientos
+    /**
+    * Se muestran los movimientos la cantidad de los mismos
+    * Se libera el espacio ocupado por la cola al hacer pop
+    */
+    mostrarMovimientos(&laCola,tamanioParams*3);
+}
 
 /*
  * Principal
  * **/
 int main(int argc, char **argv){
-    Cola laCola = crearCola();
-    
-    int dimX, dimY;
     int tamanioParams;
     char* losParams  = 0; //Parametros de movimientos
-    char* losMovimientos = 0; //movimientos: "ULRLR"...
-    
+    char* direccionTexto = argv[1];
+
     if (argc == 3){
-        int cantidadLineas = 0;
+        int tamanioParams = 0;
         char* direccionParam =argv[2];
-        losParams = abrirArchivo(direccionParam, &tamanioParams);
-        cantidadLineas = obtenerLineas(losParams);
-        
-        //Se lee el archivo de texto
-        char* elTexto = 0;
-        int tamanioTexto;
-        char* direccionText =argv[1];
-        elTexto = abrirArchivo(direccionText, &tamanioTexto);
-        //Fin lectura texto
-        
-        int iteraciones;
-        for (iteraciones=1; iteraciones<cantidadLineas; iteraciones++){
+        losParams = leerParamsArchivo(direccionParam, &tamanioParams);
+        int cantidadLineas = contarLineas(losParams);
+        for (int iteraciones=1; iteraciones<cantidadLineas; iteraciones++){
             char* originalParams = copiarContenido(losParams);
             char* lineaParams = siguienteLinea(originalParams, iteraciones);
-            //if (strlen(lineaParams)>3){
-            losMovimientos 
-                = lecturaParams(lineaParams, tamanioParams, &dimX, &dimY);
+            ciclar(lineaParams, tamanioParams, direccionTexto);
             free(originalParams);//Se desaloca la copia de parametros.
-        
-            //Crear la matriz con la dimensiones leídas
-            char **laMatriz = crearMatriz(dimX, dimY);
-
-            llenarMatriz(elTexto, tamanioTexto, laMatriz, dimX, dimY);
-            
-            /**
-            * Moverse sobre la matriz con el texto y devolver la cola con los 
-            * movimientos. 
-            */
-            recorrerMatriz(laMatriz, dimX, dimY, losMovimientos, &laCola);
-
-            desalocarMatriz(laMatriz, dimX);
-
-            free(losMovimientos); //No se necesitan más los movimientos
-
-            /**
-            * Se muestran los movimientos la cantidad de los mismos
-            * Se libera el espacio ocupado por la cola al hacer pop
-            */
-            mostrarMovimientos(&laCola,tamanioParams*3);
             }
-        free(elTexto); //Ya no se necesita más el texto
         free(losParams); //No se necesita más el archivo de parámetros
     }else if (argc == 2){
-        losParams = lecturaManual(&tamanioParams);
-        losMovimientos = lecturaParams(losParams, tamanioParams, &dimX, &dimY);
-        free(losParams); //No se necesita más el archivo de parámetros
-    
-        //Crear la matriz con la dimensiones leídas
-        char **laMatriz = crearMatriz(dimX, dimY);
-        
-        /**
-        * Se lee el archivo de texto y se llena la matriz ya creada
-        */
-        char* elTexto = 0;
-        int tamanioTexto;
-        char* direccionText =argv[1];
-        elTexto = abrirArchivo(direccionText, &tamanioTexto);
-        llenarMatriz(elTexto, tamanioTexto, laMatriz, dimX, dimY);
-        free(elTexto); //Ya no se necesita más el texto
-
-        /**
-        * Moverse sobre la matriz con el texto y devolver la cola con los 
-        * movimientos. 
-        */
-        recorrerMatriz(laMatriz, dimX, dimY, losMovimientos, &laCola);
-
-        desalocarMatriz(laMatriz, dimX);
-
-        free(losMovimientos); //No se necesitan más los movimientos
-
-        /**
-        * Se muestran los movimientos la cantidad de los mismos
-        * Se libera el espacio ocupado por la cola al hacer pop
-        */
-        mostrarMovimientos(&laCola,tamanioParams*3);
+        losParams = leerParamsConsola(&tamanioParams);
+        ciclar(losParams, tamanioParams, direccionTexto);
         }
     return 0;
 }
