@@ -28,26 +28,29 @@ void Parser::procesarLinea(std::string unaLinea){
             std::string unaPalabra;
             //Separo los espacios
             while(getline(sin, unaPalabra, ' ') ){
-                misPalabras->agregarPalabra(this->minus(unaPalabra));
+                if (unaPalabra.size() > 3)
+                    misPalabras->agregarPalabra(this->minus(unaPalabra));
             }
-    } else{
+        }
+    } else {
         std::stringstream sin(unaLinea);
         std::string unaPalabra;
         //Separo los espacios
-        while(getline(sin, unaPalabra, ' ') ){
-            misPalabras->agregarPalabra(this->minus(unaPalabra));
-            }
+        while(getline(sin, unaPalabra, ' ')){
+            if (unaPalabra.size() > 3)
+                    misPalabras->agregarPalabra(this->minus(unaPalabra));
         }
     }
 }
 
-std::string& Parser::minus(std::string &entrada_){
+
+std::string Parser::minus(std::string &entrada_){
     for (std::string::size_type i=0; i<entrada_.length(); ++i)
-        entrada_[i] = std::tolower(entrada_[i],loc);
-    return &entrada_;
+        entrada_[i] = std::tolower(entrada_[i]);
+    return entrada_;
 }
 
 
 ContenedorDePalabras* Parser::getPalabras(){
-    return &misPalabras;
+    return misPalabras;
     }

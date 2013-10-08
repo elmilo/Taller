@@ -1,3 +1,6 @@
+#ifndef ARBOLAVL_INCLUDED
+#define ARBOLAVL_INCLUDED
+
 #include "Pila.h"
 
 template <typename T>
@@ -267,3 +270,5 @@ size_t max(NodoAr<T>* lhs, NodoAr<T>* rhs) {
   unArbol.remover(115);
   return 0;
 }*/
+
+#endif

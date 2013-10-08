@@ -1,8 +1,8 @@
 OBJ = main.o Diccionario.o ListadorDeArchivos.o Tokenizer.o PosicionesPorDocumento.o
-#CXXFLAGS = -fmessage-length=0 -std=c++11 -Wall
-CXXFLAGS = -Wall
+CXXFLAGS = -fmessage-length=0 -std=c++98 -Wall
+#CXXFLAGS = -Wall
 #CXXDEBUG = -O0 -g3
-#CXXRELEASE = -O3
+CXXRELEASE = -O3
 
 #all: debug
 

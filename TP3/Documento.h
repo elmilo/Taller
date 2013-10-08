@@ -10,20 +10,20 @@ private:
     ContenedorDePalabras* misPalabras;
     std::string nombre;
     std::string extension;
+    bool valido;
 
 public:
-Documento(std::string a, std::string b){
-    nombre = a;
-    extension = b;
-}
+Documento(std::string a, std::string b);
     
-~Documento(){
-    delete misPalabras;
-    }
+~Documento();
 
-void setPalabras(ContenedorDePalabras* lasPalabras){
-    
-    }
+void setPalabras(ContenedorDePalabras* lasPalabras);
+
+void NoValido();
+
+std::string getNombreCompleto();
+
+bool tienePalabras();
 };
 
 #endif

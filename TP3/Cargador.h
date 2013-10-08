@@ -4,20 +4,23 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include <algorithm>
+#include "Documento.h"
 #include "Parser.h"
-#include "/estructuras/Cola.h"
+#include "estructuras/Cola.h"
 
 class Cargador {
 
 private:
     Parser* parser;
-public:
-    void abrirArchivo (std::string nombreArchivo);
     
     std::string GetExtension(const std::string& nombreArchivo);
     std::string GetNombreArchivo(const std::string& nombreArchivo);
-    std::string GetCodigoExtension(const std::string& nombreArchivo);
+    int GetCodigoExtension(const std::string& nombreArchivo);
+    
+public:
+    Documento* abrirArchivo (std::string nombreArchivo);
+
 };
 
 #endif

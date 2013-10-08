@@ -1,7 +1,4 @@
-#include "/estructuras/Cola.h"
-#include <vector>
-#include <string>
-#include <iostream>
+#include "SacarTags.h"
 
 void SacarTags::procesar(){
 for(;;){
@@ -15,7 +12,6 @@ for(;;){
     // Si hay tags, se las busca: 
     if(posicionComienzo != 0){
         int pc = posicionComienzo;
-        int pf = posicionFin;
         listaDeTexto.encolar(entrada.substr(0, pc));
         entrada = entrada.substr(pc, entrada.size() - pc);
         posicionComienzo = 0;
@@ -50,20 +46,11 @@ for(;;){
     }
 }
 
-/*SacarTags::SacarTags(std::string entrada_){
-        entrada = entrada_;
-        delimInicial = '';
-        delimFinal = '';
-        //this->procesar();
-    }*/
-
 SacarTags::SacarTags(){
-        delimInicial = '';
-        delimFinal = '';
         plain = true;
     }
 
-SacarTags::setEntrada(std::string entrada_){
+void SacarTags::setEntrada(std::string entrada_){
     entrada = entrada_;
     this->procesar();
     }
@@ -80,31 +67,18 @@ bool SacarTags::esNecesario(){
     return !plain;
     }
 
-/*SacarTagsTEX::SacarTagsTEX(std::string entrada_){
-        entrada = entrada_;
-        delimInicial = '{';
-        delimFinal = '}';
-        notPlain = true;
-        this->procesar();
-    }*/
+void SacarTags::setDelimitadores(char comienzo, char fin){
+    delimInicial = comienzo;
+    delimFinal = fin;
+}
     
 SacarTagsTEX::SacarTagsTEX(){
-        delimInicial = '{';
-        delimFinal = '}';
+        this->setDelimitadores('{','}');
         plain = false;
     }
 
-/*SacarTagsHTML::SacarTagsHTML(std::string entrada_){
-        entrada = entrada_;
-        delimInicial = '<';
-        delimFinal = '>';
-        notPlain = true;
-        this->procesar();
-    }*/
-    
 SacarTagsHTML::SacarTagsHTML(){
-        delimInicial = '<';
-        delimFinal = '>';
+        this->setDelimitadores('<','>');
         plain = false;
     }
 

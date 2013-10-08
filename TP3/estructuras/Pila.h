@@ -1,3 +1,6 @@
+#ifndef PILA_H_INCLUDED
+#define PILA_H_INCLUDED
+
 #include <iostream>
 
 template <typename T>
@@ -102,3 +105,5 @@ void mostrarPila() {
     }
 }
 };
+
+#endif

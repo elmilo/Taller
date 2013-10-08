@@ -1,6 +1,9 @@
+#ifndef CONTENEDORDEPALABRAS_H_INCLUDED
+#define CONTENEDORDEPALABRAS_H_INCLUDED
+
 #include <iostream>
 #include <string>
-#include "/estructuras/ArbolAVL.h"
+#include "estructuras/ArbolAVL.h"
 
 class ContenedorDePalabras {
 private:
@@ -8,7 +11,6 @@ private:
     ArbolAVL<std::string> listado; 
     
 public:
-ContenedorDePalabras();
 
 void agregarPalabra(std::string unaPalabra);
 
@@ -16,3 +18,5 @@ bool estaPalabra(std::string unaPalabra);
 
 bool estaVacio();
 };
+
+#endif

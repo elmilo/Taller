@@ -28,9 +28,12 @@ std::string Cargador::GetNombreArchivo(const std::string& nombreArchivo){
 
 Documento* Cargador::abrirArchivo (std::string nombreArchivo){
     std::string unaLinea;
-    ifstream archivo (nombreArchivo);
+    std::ifstream archivo;
+    archivo.open(nombreArchivo.c_str(), std::ifstream::in);
+    
     std::transform(nombreArchivo.begin(),
-        nombreArchivo.end(), nombreArchivo.begin(), (int(*)(int)) tolower);
+            nombreArchivo.end(), nombreArchivo.begin(), (int(*)(int)) tolower);
+    
     std::string nom =this->GetNombreArchivo(nombreArchivo);
     std::string ext =this->GetExtension(nombreArchivo);
     
@@ -41,11 +44,16 @@ Documento* Cargador::abrirArchivo (std::string nombreArchivo){
     if (archivo.is_open()){
         std::string unaLinea;
         while(getline(archivo, unaLinea)) {
-            parser.procesarLinea(unaLinea);
+            parser->procesarLinea(unaLinea);
         }
         devolver->setPalabras(parser->getPalabras());
         archivo.close();
-    }
-    else devolver->NoValido(); 
-    return Documento;
+        delete parser;
+        return devolver;
+    } else {
+        delete devolver;
+        delete parser;
+        return NULL;
+        }
+
 }

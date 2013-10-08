@@ -1,5 +1,7 @@
-#include "/estructuras/Cola.h"
-#include <vector>
+#ifndef SACARTAGS_H_INCLUDED
+#define SACARTAGS_H_INCLUDED
+
+#include "estructuras/Cola.h"
 #include <string>
 #include <iostream>
 
@@ -11,17 +13,19 @@ private:
     void procesar();
 
 protected:
-    char * delimInicial;
-    char * delimFinal;
+    char delimInicial;
+    char delimFinal;
     bool plain;
 
 public:
     //SacarTags(std::string entrada_);
     SacarTags();
+    //~SacarTags();
 
-    setEntrada(std::string entrada_);
+    void setDelimitadores(char comienzo, char fin);
+    void setEntrada(std::string entrada_);
     std::string obtenerCadena();
-    bool estaVacio();
+    bool noEstaVacio();
     bool esNecesario();
 };
 
@@ -37,3 +41,5 @@ public:
     //SacarTagsTEX(std::string entrada_);
     SacarTagsTEX();
 };
+
+#endif

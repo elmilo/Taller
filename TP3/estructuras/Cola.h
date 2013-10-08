@@ -1,3 +1,6 @@
+#ifndef COLA_H_INCLUDED
+#define COLA_H_INCLUDED
+
 #include <iostream>
 
 template <typename T>
@@ -96,5 +99,6 @@ void mostrarCola() {
     }
 }
 
-
 };
+
+#endif
