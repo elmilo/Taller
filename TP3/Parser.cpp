@@ -1,60 +1,53 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream> 
+#include "Parser.h"
 
-#define TAGA '<'
-#define TAGB '>'
-
-void extraerTags(){ //(string entrada){
-    std::size_t comienzo(0), final(0);
-    std::string entrada = "<foo>1,2,3,4</foo><foo>5,6,7,8</foo><foo>9,10,11,12</foo>";
-    comienzo = entrada.find(TAGA);
-    final = entrada.find(TAGB);
-    //std::cout << "comienzo: " << comienzo << "\n";
-    //std::cout << "final: "<< final << "\n\n\n";
-    std::string temp = entrada.substr (final+1,std::string::npos);
-    while ((comienzo != std::string::npos) && (final!=std::string::npos)){
-            //temp = entrada.substr (final+1,std::string::npos);
-            comienzo = temp.find(TAGA);
-                std::cout << temp << "\n";
-            //std::cout << "comienzo: " << comienzo << "\n";
-            final = temp.find(TAGB);
-            
-            //std::cout << "final: "<< final << "\n\n\n";
-            temp = temp.substr (final+1,std::string::npos);
-      }
-    std::cout << entrada << "\n";
-    //std::cout << temp << "\n";
+Parser::Parser (int cod){
+    misPalabras = new ContenedorDePalabras;
+    codExtension = cod;
+    switch (codExtension){
+        case '1':
+            extractor = new SacarTagsTEX();
+            break;
+        case '2':
+            extractor = new SacarTagsHTML();
+            break;
+        default:
+            extractor = new SacarTags();
+    }
 }
 
-int main(){
-    extraerTags();
-    /*std::ifstream entrada;
-    entrada.open("ejemplo", std::ifstream::in);
-
-    std::string unaLinea;
+Parser::Parser(){
+    codExtension = 0;
+    }
     
-    while(std::getline(entrada, unaLinea)){
-        
-        std::istringstream iss(unaLinea);
-        std::string resultado;
-            
-        if(std::getline(iss, resultado , '<')){
-                std::cout << "un parser: " << resultado << "\n";
-//                std::getline(iss, resultado, '>');
-                std::string token;
-                while( std::getline(iss, token, '>')){
-                    while( std::getline(iss, token, ' ')){
-                    std::cout << token << std::endl;
-                }
-                }
-            
-            if( resultado == "bar" ){
-               std::cout << "\n acá llego\n" << std::endl;
+void Parser::procesarLinea(std::string unaLinea){
+    if (extractor->esNecesario()){
+        extractor->setEntrada(unaLinea);
+        while (extractor->noEstaVacio()){
+            std::string lineaLimpia = extractor->obtenerCadena();
+            std::stringstream sin(lineaLimpia);
+            std::string unaPalabra;
+            //Separo los espacios
+            while(getline(sin, unaPalabra, ' ') ){
+                misPalabras->agregarPalabra(this->minus(unaPalabra));
+            }
+    } else{
+        std::stringstream sin(unaLinea);
+        std::string unaPalabra;
+        //Separo los espacios
+        while(getline(sin, unaPalabra, ' ') ){
+            misPalabras->agregarPalabra(this->minus(unaPalabra));
             }
         }
     }
-    entrada.close();*/
-    return 0;
 }
+
+std::string& Parser::minus(std::string &entrada_){
+    for (std::string::size_type i=0; i<entrada_.length(); ++i)
+        entrada_[i] = std::tolower(entrada_[i],loc);
+    return &entrada_;
+}
+
+
+ContenedorDePalabras* Parser::getPalabras(){
+    return &misPalabras;
+    }

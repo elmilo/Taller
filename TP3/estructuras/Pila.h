@@ -78,7 +78,7 @@ T desapilar() {
 }
 
 /**
- * Ver el primer elemento
+ * Ver el ultimo elemento
  */
 T obtenerUltimo() {
     NodoP<T>* ultimo = this->ultimo;
@@ -86,9 +86,9 @@ T obtenerUltimo() {
 }
 
 /**
- * Mostrar los elementos en la cola
+ * Mostrar los elementos de la pila
  */
-void mostrarCola() {
+void mostrarPila() {
     if (this->tamanio == 0){
         std::cout << "No hay nada para mostrar.\n";
     } else {

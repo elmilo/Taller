@@ -45,10 +45,17 @@ int comparar(T rhs) {
 template <typename T>
 class ArbolAVL {
     NodoAr<T>* raiz;
+    int cantidad;
   
 public:
 ArbolAVL(T elemento) {
     raiz = new NodoAr<T>(elemento);
+    cantidad++;
+}
+
+ArbolAVL() {
+    raiz = NULL;
+    cantidad = 0;
 }
 
 
@@ -86,10 +93,27 @@ NodoAr<T>* buscar(T elemento) {
         delete nodo;
     }
 }
-  
+
+void Imprimir(){
+    inOrder(raiz);
+    }
+
+int getCantidad(){
+    return cantidad;
+    }
+
 private:
+void inOrder(NodoAr<T>* n) {
+    if ( n ) {
+       inOrder(n->izquierda);
+        std::cout << n->elemento << std::endl;
+       inOrder(n->derecha);
+    }
+}
+
 NodoAr<T>* agregar(T elemento, NodoAr<T>* nodo) {
     if (!nodo) {
+        cantidad++;
         return new NodoAr<T>(elemento);
     }
     switch(nodo->comparar(elemento)) {
