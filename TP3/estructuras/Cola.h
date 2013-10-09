@@ -11,7 +11,7 @@ class Cola {
     NodoBase<T>* atras;
     int tamanio; // Para guardar el tamanio de la cola
     int contador;
-    NodoBase<T>* temporal;
+    NodoBase<T>* iterador;
 
 public:
 Cola () {
@@ -93,30 +93,22 @@ void mostrar() {
 }
 
 void resetear (){
-    temporal = this->frente;
+    iterador = this->frente;
     this->contador = this->tamanio;
     }
 
-
 bool tieneEnconlados(){
-    return contador!=0;
+    return this->contador!=0;
     }
     
-T obtener() {
+T obtenerIterado() {
     T devolver;
-    /*if (this->tamanio == 0){
-        std::cout << "No hay nada para mostrar.\n";
-    } else {*/
-         contador--;
-         devolver = temporal->getElemento();
-         temporal = temporal->getSiguiente();
-        //int i, tamanio = this->tamanio;
-        //std::cout << "Hay " << this->tamanio << " elementos para mostrar: \n";
-        //for (int i = 0; i < tamanio; i++) {
-      //  }
-    //}
+    this->contador--;
+    devolver = iterador->getElemento();
+    iterador = iterador->getSiguiente();
     return devolver;
 }
+
 };
 
 #endif
