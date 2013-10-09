@@ -2,22 +2,12 @@
 #define PILA_H_INCLUDED
 
 #include <iostream>
-
-template <typename T>
-struct NodoP {
-    T elemento;
-    NodoP<T>* anterior;
-
-NodoP() {
-    anterior = 0;
-    }
-
-};
+#include "NodoBase.h"
 
 template <typename T>
 class Pila {
-    NodoP<T>* primero;
-    NodoP<T>* ultimo;
+    NodoBase<T>* primero;
+    NodoBase<T>* ultimo;
     int tamanio; // Para guardar el tamanio de la pila
 
 public:
@@ -42,19 +32,19 @@ bool estaVacia(){
  * Agregar elemento en la Pila
  */
 void apilar(T elementoAgregado) {
-    // NodoP nuevo:
-    NodoP<T>* nodoNuevo = new NodoP<T>;
+    // NodoBase nuevo:
+    NodoBase<T>* nodoNuevo = new NodoBase<T>;
     
-    nodoNuevo->elemento = elementoAgregado;
-    nodoNuevo->anterior = NULL;
+    nodoNuevo->setElemento(elementoAgregado);
+    nodoNuevo->setAnterior(NULL);
 
     if (this->primero == NULL) { // no hay primero
         this->primero = nodoNuevo;
         this->ultimo = nodoNuevo;
     } else {
-        NodoP<T>* temp = this->ultimo;
+        NodoBase<T>* temp = this->ultimo;
         this->ultimo = nodoNuevo;
-        this->ultimo->anterior = temp;
+        this->ultimo->setAnterior(temp);
     }
     this->tamanio++;
 }
@@ -67,11 +57,11 @@ T desapilar() {
      {    throw std::runtime_error("Bad Pop");
      }*/
     // obtener el ultimo elemento
-    NodoP<T>* ultimo = this->ultimo;
-    T elemento = ultimo->elemento;
+    NodoBase<T>* ultimo = this->ultimo;
+    T elemento = ultimo->getElemento();
     
     // mover puntero al anterior elemento
-    this->ultimo = ultimo->anterior;
+    this->ultimo = ultimo->getAnterior();
     this->tamanio--;
 
     // Desalocar memoria
@@ -84,23 +74,23 @@ T desapilar() {
  * Ver el ultimo elemento
  */
 T obtenerUltimo() {
-    NodoP<T>* ultimo = this->ultimo;
-    return ultimo->elemento;
+    NodoBase<T>* ultimo = this->ultimo;
+    return ultimo->getElemento();
 }
 
 /**
  * Mostrar los elementos de la pila
  */
-void mostrarPila() {
+void mostrar() {
     if (this->tamanio == 0){
         std::cout << "No hay nada para mostrar.\n";
     } else {
-        NodoP<T>* frente = this->frente;
+        NodoBase<T>* frente = this->ultimo;
         int i, tamanio = this->tamanio;
-        std::cout << "Hay " << this->tamanio << " elementos para mostrar \n";
+        std::cout << "Hay " << this->tamanio << " elementos para mostrar: \n";
         for (i = 0; i < tamanio; i++) {
-            std::cout << frente->elemento;            
-            frente= frente->anterior;
+            std::cout << frente->getElemento() << std::endl;            
+            frente= frente->getAnterior();
         }
     }
 }

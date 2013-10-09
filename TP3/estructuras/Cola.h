@@ -2,22 +2,13 @@
 #define COLA_H_INCLUDED
 
 #include <iostream>
-
-template <typename T>
-struct NodoC {
-    T elemento;
-    NodoC<T>* siguiente;
-
-NodoC() {
-    siguiente = 0;
-    }
-};
+#include "NodoBase.h"
 
 template <typename T>
 class Cola {
 
-    NodoC<T>* frente;
-    NodoC<T>* atras;
+    NodoBase<T>* frente;
+    NodoBase<T>* atras;
     int tamanio; // Para guardar el tamanio de la cola
 
 public:
@@ -41,16 +32,16 @@ bool estaVacia(){
  * Agregar elemento en la Cola
  */
 void encolar(T elementoAgregado) {
-    // NodoC nuevo:
-    NodoC<T>* nodoNuevo = new NodoC<T>;
     
-    nodoNuevo->elemento = elementoAgregado;
-    nodoNuevo->siguiente = NULL;
+    NodoBase<T>* nodoNuevo = new NodoBase<T>;
+    
+    nodoNuevo->setElemento(elementoAgregado);
+    nodoNuevo->setSiguiente(NULL);
 
     if (this->frente == NULL) { // no hay frente
         this->frente = nodoNuevo;
     } else {
-        this->atras->siguiente = nodoNuevo;
+        this->atras->setSiguiente(nodoNuevo);
     }
     this->atras = nodoNuevo;
     this->tamanio++;
@@ -61,11 +52,11 @@ void encolar(T elementoAgregado) {
  */
 T desencolar() {
     // obtener el primer elemento
-    NodoC<T>* frente = this->frente;
-    T elemento = frente->elemento;
+    NodoBase<T>* frente = this->frente;
+    T elemento = frente->getElemento();
     
     // mover puntero al siguiente elemento
-    this->frente = frente->siguiente;
+    this->frente = frente->getSiguiente();
     this->tamanio--;
 
     // Desalocar memoria
@@ -78,23 +69,23 @@ T desencolar() {
  * Ver el primer elemento
  */
 T obtenerFrente() {
-    NodoC<T>* frente = this->frente;
-    return frente->elemento;
+    NodoBase<T>* frente = this->frente;
+    return frente->getElemento();
 }
 
 /**
  * Mostrar los elementos en la cola
  */
-void mostrarCola() {
+void mostrar() {
     if (this->tamanio == 0){
         std::cout << "No hay nada para mostrar.\n";
     } else {
-        NodoC<T>* frente = this->frente;
+        NodoBase<T>* frente = this->frente;
         int i, tamanio = this->tamanio;
-        std::cout << "Hay " << this->tamanio << " elementos para mostrar \n";
+        std::cout << "Hay " << this->tamanio << " elementos para mostrar: \n";
         for (i = 0; i < tamanio; i++) {
-            std::cout << frente->elemento;            
-            frente= frente->siguiente;
+            std::cout << frente->getElemento() << std::endl;            
+            frente= frente->getSiguiente();
         }
     }
 }
