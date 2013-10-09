@@ -25,3 +25,7 @@ bool Documento::tienePalabras(){
 std::string Documento::getNombreCompleto(){
     return nombre + extension;
     }
+
+bool Documento::buscarUnaPalabra(std::string unaPalabra){
+     return misPalabras->estaPalabra(unPalabra);
+    }

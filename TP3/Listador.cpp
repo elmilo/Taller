@@ -27,6 +27,9 @@ public:
         while(getline(sin, unaBusqueda) ){
                 misBusquedas.encolar(unaBusqueda);
             }
+        
+        std::string unaBusqueda =;
+            
         }
     
 

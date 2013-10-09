@@ -24,6 +24,9 @@ void NoValido();
 std::string getNombreCompleto();
 
 bool tienePalabras();
+
+bool buscarUnaPalabra(std::string unaPalabra);
+
 };
 
 #endif
